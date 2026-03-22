@@ -1,0 +1,49 @@
+# ============================================================
+# .gitignore for Algored pipeline
+# Data files are excluded — only R scripts are tracked.
+# ============================================================
+
+# ---- R session and project artefacts ----
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# ---- Input data (not for public repo) ----
+*.csv
+*.xlsx
+
+# ---- Intermediate and output R data objects ----
+*.rds
+
+# ---- MALLET binary corpus files ----
+*.mallet
+
+# ---- Raw text files created during pipeline ----
+my_corpus.txt
+train.txt
+test.txt
+
+# ---- MALLET output files ----
+doc-topics-*.txt
+doc-probs-*.txt
+topic-keys-*.txt
+topic-state-*.txt
+merged-doc-topics-*.txt
+test-doc-topics-*.txt
+lda_evaluate*.csv
+
+# ---- MALLET model artefacts ----
+topic-evaluator-*/
+topic-inferencer-*/
+topic-evaluator-*
+topic-inferencer-*
+
+# ---- Per-newsroom TF-IDF cache ----
+newsroom_results/
+
+# ---- Progress tracking files written by pipeline ----
+processed_newsrooms_*.txt
+
+# ---- Debug / scratch scripts ----
+debug.R
