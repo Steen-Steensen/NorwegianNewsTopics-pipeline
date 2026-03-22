@@ -4,9 +4,10 @@ R pipeline for LDA topic modeling and matching social media posts (Instagram, Fa
 to a corpus of Norwegian news articles, and assigning LDA topic distributions to
 both the articles and the matched posts.
 
-The pipeline was developed for the Algored project (Algorithmic editors and news diversity) at 
-the Department of Communication, Kristiania University College, which analysed news diversity across
-platforms in Norway (2023 corpus). The project was funded by the Norwegian Media Authority (2024-2025)
+The pipeline was developed by Steen Steensen for the Algored project (Algorithmic editors and 
+news diversity) at the Department of Communication, Kristiania University College. The project, 
+which was was funded by the Norwegian Media Authority (2024-2025), analysed news diversity
+across platforms in Norway (2023 corpus). 
 
 ---
 
