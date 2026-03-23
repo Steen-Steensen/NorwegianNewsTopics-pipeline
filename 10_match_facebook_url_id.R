@@ -9,7 +9,7 @@
 #   Step 1b: Direct URL matching — normalise and compare final_link then link
 #            directly against article URLs in alltexts (catches slug-based URLs
 #            with no embedded article_id)
-#   Unmatched posts proceed directly to cosine similarity in script 11.
+#   Unmatched posts proceed to cosine similarity in script 11.
 #
 # INPUTS:
 #   - Facebook_Data.csv: Facebook post data. The page_name column must already
@@ -20,7 +20,6 @@
 #
 # OUTPUTS:
 #   - FB_Data_Matched.rds: Facebook posts matched via article ID or direct URL
-#                          (exact matches — no similarity threshold applied)
 #   - FB_Data_filtered_remaining.rds: Unmatched posts passed to cosine
 #                                      similarity matching in script 11
 #
@@ -46,7 +45,7 @@ FB_Data <- FB_Data %>% rename(newsroom = page_name)
 alltexts_TP <- readRDS("alltexts_with_TP_distribution.rds")
 
 # ============================================================================
-# SHARED HELPERS
+# SHARED HELPERS AND CONFIGURATION
 # ============================================================================
 
 # Check whether a URL string is usable (not NA, empty, or literal "NA")
@@ -89,24 +88,17 @@ extract_article_id <- function(url, lookup) {
 }
 
 cat("Step 1: article_id matching (final_link, then link)...\n")
-FB_Data$matched_article_id <- vapply(seq_len(nrow(FB_Data)), function(i) {
+# newsroom_id_lookups is a named integer vector (name = article_id, value = pipeline ID).
+# Look up the pipeline ID directly — no join required, no cross-newsroom collision.
+FB_Data$ID <- vapply(seq_len(nrow(FB_Data)), function(i) {
   lookup <- newsroom_id_lookups[[FB_Data$newsroom[i]]]
-  if (is.null(lookup)) return(NA_character_)
+  if (is.null(lookup)) return(NA_integer_)
   # Try final_link first, fall back to link
-  result <- extract_article_id(FB_Data$final_link[i], lookup)
-  if (!is.na(result)) return(result)
-  extract_article_id(FB_Data$link[i], lookup)
-}, character(1))
-
-# Join matched article_id → pipeline ID
-FB_Data <- FB_Data %>%
-  left_join(
-    article_id_mapping %>% select(article_id, ID),
-    by = c("matched_article_id" = "article_id"),
-    relationship = "many-to-one"
-  )
-
-if (!"ID" %in% names(FB_Data)) FB_Data$ID <- NA_integer_
+  article_id <- extract_article_id(FB_Data$final_link[i], lookup)
+  if (is.na(article_id)) article_id <- extract_article_id(FB_Data$link[i], lookup)
+  if (is.na(article_id)) return(NA_integer_)
+  as.integer(lookup[[article_id]])   # pipeline ID straight from the per-newsroom vector
+}, integer(1))
 
 article_id_matched_count <- sum(!is.na(FB_Data$ID))
 cat(sprintf("  Matched: %d posts\n", article_id_matched_count))
@@ -158,26 +150,23 @@ cat(sprintf("  Matched: %d posts\n", direct_url_matched_count))
 FB_Data_Matched <- FB_Data %>%
   filter(!is.na(ID)) %>%
   mutate(ID = as.integer(ID)) %>%
-  select(-matched_article_id, -starts_with("...")) %>%
+  select(-starts_with("...")) %>%
   distinct()
 
 # Posts still unmatched — passed to cosine similarity matching in script 11
 FB_Data_filtered_remaining <- FB_Data %>%
   filter(is.na(ID)) %>%
-  select(-matched_article_id, -starts_with("..."))
+  select(-starts_with("..."))
 
 # Save outputs
 saveRDS(FB_Data_Matched, "FB_Data_Matched.rds")
 saveRDS(FB_Data_filtered_remaining, "FB_Data_filtered_remaining.rds")
 
-total_matched <- article_id_matched_count + direct_url_matched_count
 remaining_count <- nrow(FB_Data_filtered_remaining)
 
-cat(sprintf("\nMatching summary:\n"))
-cat(sprintf("  Step 1  — article_id:  %d\n", article_id_matched_count))
-cat(sprintf("  Step 1b — direct URL:  %d\n", direct_url_matched_count))
-cat(sprintf("  Total matched:         %d\n", total_matched))
-cat(sprintf("  Remaining for cosine:  %d\n", remaining_count))
+cat(sprintf("\nScript 10 matching summary:\n"))
+cat(sprintf("  Step 1  — article_id:        %d posts\n", article_id_matched_count))
+cat(sprintf("  Step 1b — direct URL:        %d posts\n", direct_url_matched_count))
+cat(sprintf("  Passing to cosine (script 11): %d posts\n", remaining_count))
 cat(sprintf("\n  Output: FB_Data_Matched.rds (%d rows)\n", nrow(FB_Data_Matched)))
-cat(sprintf("  Output: FB_Data_filtered_remaining.rds (%d rows for script 11)\n",
-            remaining_count))
+cat(sprintf("  Output: FB_Data_filtered_remaining.rds (%d rows)\n", remaining_count))

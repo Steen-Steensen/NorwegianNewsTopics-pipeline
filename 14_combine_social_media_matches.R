@@ -94,7 +94,24 @@ cat(sprintf("Facebook cosine matches (similarity > %.2f, words >= %d): %d articl
             threshold_fb, threshold_fb_words, length(fb_ids_cosine)))
 
 fb_article_ids <- unique(c(fb_ids_exact, as.integer(fb_ids_cosine)))
-cat(sprintf("Facebook total unique articles matched: %d\n", length(fb_article_ids)))
+
+# --- Post-level counts ---
+n_fb_exact_posts  <- nrow(fb_exact)
+n_fb_cosine_posts <- nrow(fb_cosine_filtered)
+n_fb_pipeline     <- n_fb_exact_posts + nrow(fb_cosine)  # all posts that entered pipeline
+n_fb_matched      <- n_fb_exact_posts + n_fb_cosine_posts
+
+cat(sprintf("\nFacebook matching summary:\n"))
+cat(sprintf("  Posts in pipeline:           %d\n", n_fb_pipeline))
+cat(sprintf("  Matched via article_id/URL:  %d posts  →  %d unique articles\n",
+            n_fb_exact_posts, length(fb_ids_exact)))
+cat(sprintf("  Matched via cosine:          %d posts  →  %d unique articles\n",
+            n_fb_cosine_posts, length(as.integer(fb_ids_cosine))))
+cat(sprintf("  Total matched posts:         %d  (%.1f%%)\n",
+            n_fb_matched, 100 * n_fb_matched / max(n_fb_pipeline, 1)))
+cat(sprintf("  Total unique articles hit:   %d\n", length(fb_article_ids)))
+cat(sprintf("  Avg FB posts per article:    %.2f\n",
+            n_fb_matched / max(length(fb_article_ids), 1)))
 
 # ==============================================================================
 # 3. INSTAGRAM

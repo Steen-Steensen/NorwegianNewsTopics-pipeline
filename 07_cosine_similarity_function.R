@@ -1,7 +1,7 @@
 # ============================================================================
 # Script: 07_cosine_similarity_function.R
 # Purpose: Match social media posts with most similar news stories using
-#          cosine similarity, with date-based filtering (±2 days)
+#          cosine similarity, with date-based filtering (±3 days)
 #
 # Input:
 #   - some_data: dataframe with social media posts
@@ -56,10 +56,10 @@ match_some_posts <- function(some_data, newsroom_data, text_column, date_column,
         post_text <- some_data[[text_column]][row_index]
         post_date <- some_data$post_date[row_index]
 
-        # Filter newsroom documents to ±2 day window around post date
+        # Filter newsroom documents to ±3 day window around post date
         valid_indices <- which(
-          newsroom_data$dates >= (post_date - 2) &
-            newsroom_data$dates <= (post_date + 2)
+          newsroom_data$dates >= (post_date - 3) &
+            newsroom_data$dates <= (post_date + 3)
         )
 
         if (length(valid_indices) == 0) return(list(similar_url = NA, similarity_score = NA))

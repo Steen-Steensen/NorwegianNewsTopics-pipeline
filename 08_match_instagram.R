@@ -5,13 +5,16 @@
 #
 # Prerequisites:
 #   - 07_cosine_similarity_function.R must be sourced (defines match_some_posts function)
-#   - Instagram_Data.csv must have the Account column already matching the
+#
+# Data preparation (run once before this script):
+#   - The Account column in Instagram_Data.csv must be recoded to match the
 #     newsroom naming convention used in alltexts (lowercase, no spaces or
-#     special characters, e.g. "tv2nyheter"). Recode this column before running.
+#     special characters, e.g. "TV 2 Nyheter" → "tv2nyheter").
+#   - Use 00_recode_social_media_newsrooms.R to produce cleaned CSV files.
 #
 # Input:
-#   - Instagram_Data.csv: Instagram posts with Account column matching
-#                         alltexts newsroom keys. Other columns: Description,
+#   - Instagram_Data.csv: Instagram posts with Account column pre-recoded to
+#                         match alltexts newsroom keys. Other columns: Description,
 #                         PostCreated, URL, Link, TotalInteractions, OverperformingScore
 #   - alltexts_with_TP_distribution.rds: news articles (newsroom, url, headline, lead, body_text)
 #     produced by 06_add_topic_values.R

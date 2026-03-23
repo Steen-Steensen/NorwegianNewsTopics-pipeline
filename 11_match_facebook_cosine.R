@@ -11,7 +11,7 @@
 # Input:
 #   - FB_Data_filtered_remaining: dataframe with Facebook posts produced by
 #     10_match_facebook_url_id.R. The newsroom column must already match
-#     the newsroom keys used in alltexts (see Facebook_Data.csv requirements).
+#     alltexts newsroom keys (ensured by 00_recode_social_media_newsrooms.R).
 #     Required columns: newsroom, message, post_created, url, link, final_link,
 #                       total_interactions, overperforming
 #   - alltexts_TP: dataframe with news articles (url, headline, lead)
